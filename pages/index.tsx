@@ -19,6 +19,7 @@ export default function Home() {
         return response.json();
       })
       .then((json) => {
+        console.log('CSR: ' + json.stargazers_count);
         setData({
           stars: json.stargazers_count
         });
