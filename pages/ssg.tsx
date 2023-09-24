@@ -1,31 +1,25 @@
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
-import { useEffect, useState } from 'react'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Home() {
-  const [data, setData] = useState({
-    stars: 0
-  });
+type Repo = {
+  name: string
+  stargazers_count: number
+}
 
-  // ここでuseEffectを使ってstar数を取得してみましょう!
-  useEffect(() => {
-    fetch("https://api.github.com/repos/facebook/react")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((json) => {
-        console.log('CSR: ' + json.stargazers_count);
-        setData({
-          stars: json.stargazers_count
-        });
-      });
-  }, []);
+export async function getStaticProps() {
+  const res = await fetch("https://api.github.com/repos/facebook/react")
+  const repo = await res.json()
+  console.log('SSG: ' + repo.stargazers_count);
+  return { props: { repo } }
+}
 
+type HomeProps = {
+  repo: Repo
+}
+
+export default function Home({repo}: HomeProps) {
   return (
     <main
       className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
@@ -57,7 +51,7 @@ export default function Home() {
 
       <div>
         <p>ここにReactのGitHubレポジトリに付いたスターの数を表示してみよう</p>
-        <p>{data.stars} stars</p>
+        <p>{repo.stargazers_count} stars</p>
       </div>
       <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
         <Image
